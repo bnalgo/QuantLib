@@ -16,7 +16,6 @@ addons:
 script:
   - ./autogen.sh
   - ./configure --disable-static
-  - ccache --print-config
   - ccache --zero-stats
   - ccache --max-size==1G
   - make -j 2 -C ql
