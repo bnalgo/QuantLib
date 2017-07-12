@@ -42,7 +42,8 @@ namespace QuantLib {
                             public TermStructureConsistentModel {
       public:
         BlackKarasinski(const Handle<YieldTermStructure>& termStructure,
-                        Real a = 0.1, Real sigma = 0.1);
+                        Real a = 0.1, Real sigma = 0.1,
+                        Real spread =0.0);
 
         boost::shared_ptr<ShortRateDynamics> dynamics() const {
             QL_FAIL("no defined process for Black-Karasinski");
@@ -59,6 +60,7 @@ namespace QuantLib {
 
         Parameter& a_;
         Parameter& sigma_;
+        Real spread_;
     };
 
     //! Short-rate dynamics in the Black-Karasinski model
@@ -74,20 +76,24 @@ namespace QuantLib {
     class BlackKarasinski::Dynamics
         : public BlackKarasinski::ShortRateDynamics {
       public:
-        Dynamics(const Parameter& fitting, Real alpha, Real sigma)
+        Dynamics(const Parameter& fitting, Real alpha, Real sigma,
+                 Real spread)
         : ShortRateDynamics(boost::shared_ptr<StochasticProcess1D>(
                                  new OrnsteinUhlenbeckProcess(alpha, sigma))),
-          fitting_(fitting) {}
+          fitting_(fitting),
+          spread_(spread)
+        {}
 
         Real variable(Time t, Rate r) const {
-            return std::log(r) - fitting_(t);
+            return std::log(r-spread_) - fitting_(t);
         }
 
         Real shortRate(Time t, Real x) const {
-            return std::exp(x + fitting_(t));
+            return std::exp(x + fitting_(t))+spread_;
         }
       private:
         Parameter fitting_;
+        Real spread_;
     };
 
 }

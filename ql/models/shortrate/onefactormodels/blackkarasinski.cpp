@@ -56,9 +56,10 @@ namespace QuantLib {
 
     BlackKarasinski::BlackKarasinski(
                               const Handle<YieldTermStructure>& termStructure,
-                              Real a, Real sigma)
+                              Real a, Real sigma,
+                              Real spread)
     : OneFactorModel(2), TermStructureConsistentModel(termStructure),
-      a_(arguments_[0]), sigma_(arguments_[1]) {
+      a_(arguments_[0]), sigma_(arguments_[1]), spread_(spread) {
         a_ = ConstantParameter(a, PositiveConstraint());
         sigma_ = ConstantParameter(sigma, PositiveConstraint());
 
@@ -71,7 +72,7 @@ namespace QuantLib {
         TermStructureFittingParameter phi(termStructure());
 
         boost::shared_ptr<ShortRateDynamics> numericDynamics(
-                                             new Dynamics(phi, a(), sigma()));
+                                                             new Dynamics(phi, a(), sigma(), spread_));
 
         boost::shared_ptr<TrinomialTree> trinomial(
                          new TrinomialTree(numericDynamics->process(), grid));
