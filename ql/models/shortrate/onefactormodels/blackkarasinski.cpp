@@ -20,6 +20,7 @@
 #include <ql/models/shortrate/onefactormodels/blackkarasinski.hpp>
 #include <ql/methods/lattices/trinomialtree.hpp>
 #include <ql/math/solvers1d/brent.hpp>
+#include <ql/termstructures/yield/zerospreadedtermstructure.hpp>
 
 namespace QuantLib {
 
@@ -56,10 +57,9 @@ namespace QuantLib {
 
     BlackKarasinski::BlackKarasinski(
                               const Handle<YieldTermStructure>& termStructure,
-                              Real a, Real sigma,
-                              Real spread)
+                              Real a, Real sigma)
     : OneFactorModel(2), TermStructureConsistentModel(termStructure),
-      a_(arguments_[0]), sigma_(arguments_[1]), spread_(spread) {
+      a_(arguments_[0]), sigma_(arguments_[1]) {
         a_ = ConstantParameter(a, PositiveConstraint());
         sigma_ = ConstantParameter(sigma, PositiveConstraint());
 
@@ -71,8 +71,17 @@ namespace QuantLib {
 
         TermStructureFittingParameter phi(termStructure());
 
+
+        // Check if a spreaded yield term structure has been given. In
+        // this case excluded the spread from the multiplicative
+        // variance of the process
+        double spread=0.0;
+        if (const ZeroSpreadedTermStructure * syc =
+            dynamic_cast<const ZeroSpreadedTermStructure *>(& (*termStructure().currentLink())))
+            spread=syc->spread();
+
         boost::shared_ptr<ShortRateDynamics> numericDynamics(
-                                                             new Dynamics(phi, a(), sigma(), spread_));
+                                                             new Dynamics(phi, a(), sigma(), spread));
 
         boost::shared_ptr<TrinomialTree> trinomial(
                          new TrinomialTree(numericDynamics->process(), grid));

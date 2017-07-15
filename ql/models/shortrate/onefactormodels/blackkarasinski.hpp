@@ -42,8 +42,7 @@ namespace QuantLib {
                             public TermStructureConsistentModel {
       public:
         BlackKarasinski(const Handle<YieldTermStructure>& termStructure,
-                        Real a = 0.1, Real sigma = 0.1,
-                        Real spread =0.0);
+                        Real a = 0.1, Real sigma = 0.1);
 
         boost::shared_ptr<ShortRateDynamics> dynamics() const {
             QL_FAIL("no defined process for Black-Karasinski");
@@ -60,13 +59,12 @@ namespace QuantLib {
 
         Parameter& a_;
         Parameter& sigma_;
-        Real spread_;
     };
 
     //! Short-rate dynamics in the Black-Karasinski model
     /*! The short-rate is here
         \f[
-            r_t = e^{\varphi(t) + x_t}
+            r_t = e^{\varphi(t) + x_t} + spread
          \f]
          where \f$ \varphi(t) \f$ is the deterministic time-dependent
          parameter (which can not be determined analytically)

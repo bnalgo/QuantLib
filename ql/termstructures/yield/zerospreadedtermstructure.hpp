@@ -58,6 +58,7 @@ namespace QuantLib {
         const Date& referenceDate() const;
         Date maxDate() const;
         Time maxTime() const;
+        Real spread(void) const;
         //@}
         //! \name Observer interface
         //@{
@@ -112,6 +113,10 @@ namespace QuantLib {
 
     inline Time ZeroSpreadedTermStructure::maxTime() const {
         return originalCurve_->maxTime();
+    }
+
+    inline Real ZeroSpreadedTermStructure::spread(void) const {
+        return spread_->value();
     }
 
     inline void ZeroSpreadedTermStructure::update() {
