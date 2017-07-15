@@ -100,12 +100,22 @@ namespace QuantLib {
             Real xMin = trinomial->underlying(i, 0);
             Real dx = trinomial->dx(i);
             Helper finder(i, xMin, dx, discountBond, numericTree);
-            Brent s1d;
-            s1d.setMaxEvaluations(1000);
-            value = s1d.solve(finder, 1e-7, value, vMin, vMax);
-            impl->set(grid[i], value);
-            // vMin = value - 10.0;
-            // vMax = value + 10.0;
+
+            // When spread is applied it can try to force the short
+            // end of the curve into negative values which are not
+            // feasible for a log-normal model. Check for this and set
+            // rate to a value close to zero
+            if (spread > 0 && finder(vMin)*finder(vMax) > 0 )
+                impl->set(grid[i], vMin);
+            else
+                {
+                    Brent s1d;
+                    s1d.setMaxEvaluations(1000);
+                    value = s1d.solve(finder, 1e-7, value, vMin, vMax);
+                    impl->set(grid[i], value);
+                    // vMin = value - 10.0;
+                    // vMax = value + 10.0;
+                }
         }
         return numericTree;
     }
