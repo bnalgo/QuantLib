@@ -8,7 +8,6 @@ pool:
 
 variables:
   solution: '**/QuantLib.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
